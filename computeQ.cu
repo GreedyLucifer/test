@@ -59,8 +59,8 @@ __global__ void ComputeQGPU(int numK, int KBaseIndex, float* x, float* y, float*
 	  sQi += KT[Kindex].PhiMag * sinf(expArg);
 	  KBaseIndex++;
 	}
-	Qr[indexX] = sQr;
-	Qi[indexX] = sQi;
+	Qr[Xindex] = sQr;
+	Qi[Xindex] = sQi;
 }
 
 void 
@@ -100,7 +100,7 @@ ComputeQCPU(int numK, int numX,
 
 		cudaMemcpyToSymbol(KT, kValsTile, num * sizeof(kValues), 0);
 
-		ComputeQGPU <<< DimGrid, DimBlock >>> (numK, GridBase, x_d, y_d, z_d, Qr_d, Qi_d);
+		ComputeQGPU <<< DimGrid, DimBlock >>> (numK, Base, x_d, y_d, z_d, Qr_d, Qi_d);
 	}
 }
 

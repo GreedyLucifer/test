@@ -108,7 +108,7 @@ main (int argc, char *argv[]) {
 
     cudaThreadSynchronize();
 
-    computePhiMagCPU(numK, phiR_d, phiI_d, phiMag_d);
+    ComputePhiMagCPU(numK, phiR_d, phiI_d, phiMag_d);
 
     cudaThreadSynchronize();
 
@@ -150,7 +150,7 @@ main (int argc, char *argv[]) {
     cudaMemset((void *)Qi_d, 0, numX * sizeof(float));
     cudaDeviceSynchronize();
 
-	computeQCPU(numK, numX, kVals_d, x_d, y_d, z_d, Qr_d, Qi_d);
+	ComputeQCPU(numK, numX, kVals_d, x_d, y_d, z_d, Qr_d, Qi_d);
 	cudaDeviceSynchronize();
 
   if (params->outFile)
