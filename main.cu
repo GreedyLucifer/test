@@ -150,7 +150,7 @@ main (int argc, char *argv[]) {
     cudaMemset((void *)Qi_d, 0, numX * sizeof(float));
     cudaDeviceSynchronize();
 
-	ComputeQCPU(numK, numX, kVals_d, x_d, y_d, z_d, Qr_d, Qi_d);
+	ComputeQCPU(numK, numX, x_d, y_d, z_d, kVals_d, Qr_d, Qi_d);
 	cudaDeviceSynchronize();
 
   if (params->outFile)
