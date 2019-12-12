@@ -14,7 +14,7 @@
 
 #define PHIMAG_BLOCKDIM 512
 #define COMPUTEQ_BLOCKDIM 256
-#define COMPUTEQ_K_ELEMS_PER_GRID 1024
+#define COMPUTEQ_K_ELEMS_PER_GRID 2048
 
 struct kValues {
   float Kx;
@@ -39,28 +39,28 @@ __global__ void ComputePhiMagGPU(float* phiR, float* phiI, float* phiMag, int nu
 
 __global__ void ComputeQGPU(int numK, int KBaseIndex, float* x, float* y, float* z, float* Qr, float* Qi)
 {
-	__shared__ float sx, sy, sz, sQr, sQi;
+	float px, py, pz, pQr, pQi;//p:private
 	float expArg;
 
 	int Xindex = blockIdx.x * PHIMAG_BLOCKDIM + threadIdx.x;
 
-	sx = x[Xindex];
-	sy = y[Xindex];
-	sz = z[Xindex];
-	sQr = Qr[Xindex];
-	sQi = Qi[Xindex];
+	px = x[Xindex];
+	py = y[Xindex];
+	pz = z[Xindex];
+	pQr = 0.0f;
+	pQi = 0.0f;
 
 	for (int Kindex=0; Kindex < K_ELEMS_PER_GRID && KBaseIndex < numK; Kindex++)
 	{
-	  expArg = PIx2 * (KT[Kindex].Kx * sx +
-					  KT[Kindex].Ky * sy +
-					  KT[Kindex].Kz * sz);
-	  sQr += KT[Kindex].PhiMag * cosf(expArg);
-	  sQi += KT[Kindex].PhiMag * sinf(expArg);
+	  expArg = PIx2 * (KT[Kindex].Kx * px +
+					  KT[Kindex].Ky * py +
+					  KT[Kindex].Kz * pz);
+	  pQr += KT[Kindex].PhiMag * cosf(expArg);
+	  pQi += KT[Kindex].PhiMag * sinf(expArg);
 	  KBaseIndex++;
 	}
-	Qr[Xindex] = sQr;
-	Qi[Xindex] = sQi;
+	Qr[Xindex] += pQr;
+	Qi[Xindex] += pQi;
 }
 
 void 
