@@ -119,8 +119,8 @@ main (int argc, char *argv[]) {
     cudaFree(phiI_d);
 
   kVals = (struct kValues*)calloc(numK, sizeof (struct kValues));
-  int k;
-  for (k = 0; k < numK; k++) {
+  
+  for (int k = 0; k < numK; k++) {
     kVals[k].Kx = kx[k];
     kVals[k].Ky = ky[k];
     kVals[k].Kz = kz[k];
@@ -129,7 +129,6 @@ main (int argc, char *argv[]) {
 
 	float *x_d, *y_d, *z_d;
     float *Qr_d, *Qi_d;
-	kValues* kVals_d;
 
     cudaMalloc ((void **) &x_d, numX * sizeof(float));
     cudaMemcpy (x_d, x, numX * sizeof(float), cudaMemcpyHostToDevice);
@@ -140,17 +139,13 @@ main (int argc, char *argv[]) {
     cudaMalloc ((void **) &z_d, numX * sizeof(float));
     cudaMemcpy (z_d, z, numX * sizeof(float), cudaMemcpyHostToDevice);
 
-
-    cudaMalloc((void **)&kVals_d, numK * sizeof(struct kValues));
-    cudaMemcpy(kVals_d, kVals, numK * sizeof(struct kValues), cudaMemcpyHostToDevice);
-
     cudaMalloc((void **)&Qr_d, numX * sizeof(float));
     cudaMemset((void *)Qr_d, 0, numX * sizeof(float));
     cudaMalloc((void **)&Qi_d, numX * sizeof(float));
     cudaMemset((void *)Qi_d, 0, numX * sizeof(float));
     cudaDeviceSynchronize();
 
-	ComputeQCPU(numK, numX, x_d, y_d, z_d, kVals_d, Qr_d, Qi_d);
+	ComputeQCPU(numK, numX, x_d, y_d, z_d, kVals, Qr_d, Qi_d);
 	cudaDeviceSynchronize();
 
   if (params->outFile)
