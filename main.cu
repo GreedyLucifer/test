@@ -34,7 +34,7 @@
 #include "parboil.h"
 
 #include "file.h"
-#include "computeQ.cc"
+#include "computeQ.cu"
 
 int
 main (int argc, char *argv[]) {
@@ -108,7 +108,7 @@ main (int argc, char *argv[]) {
 
     cudaThreadSynchronize();
 
-    computePhiMag_GPU(numK, phiR_d, phiI_d, phiMag_d);
+    computePhiMagCPU(numK, phiR_d, phiI_d, phiMag_d);
 
     cudaThreadSynchronize();
 
@@ -150,7 +150,7 @@ main (int argc, char *argv[]) {
     cudaMemset((void *)Qi_d, 0, numX * sizeof(float));
     cudaDeviceSynchronize();
 
-	computeQGPU(numK, numX, kVals_d, x_d, y_d, z_d, Qr_d, Qi_d);
+	computeQCPU(numK, numX, kVals_d, x_d, y_d, z_d, Qr_d, Qi_d);
 	cudaDeviceSynchronize();
 
   if (params->outFile)

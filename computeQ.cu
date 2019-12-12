@@ -37,7 +37,7 @@ __global__ void ComputePhiMagGPU(float* phiR, float* phiI, float* phiMag, int nu
 	}
 }
 
-__global__ void ComputeQKernel(int numK, int KBaseIndex, float* x, float* y, float* z, float* Qr, float* Qi)
+__global__ void ComputeQGPU(int numK, int KBaseIndex, float* x, float* y, float* z, float* Qr, float* Qi)
 {
 	__shared__ float sx, sy, sz, sQr, sQi;
 	float expArg;
@@ -47,8 +47,8 @@ __global__ void ComputeQKernel(int numK, int KBaseIndex, float* x, float* y, flo
 	sx = x[Xindex];
 	sy = y[Xindex];
 	sz = z[Xindex];
-	sQr = Qr[indexX];
-	sQi = Qi[indexX];
+	sQr = Qr[Xindex];
+	sQi = Qi[Xindex];
 
 	for (int Kindex=0; Kindex < K_ELEMS_PER_GRID && KBaseIndex < numK; Kindex++)
 	{
@@ -68,12 +68,12 @@ ComputePhiMagCPU(int numK,
 				 float* phiR_d, float* phiI_d, 
 				 float* phiMag_d) {
 	int phiMagBlocks = numK / PHIMAG_BLOCKDIM;
-	if (numK % KERNEL_PHI_MAG_THREADS_PER_BLOCK)
+	if (numK % PHIMAG_BLOCKDIM)
 		phiMagBlocks++;
 	dim3 DimBlock(PHIMAG_BLOCKDIM, 1, 1);
 	dim3 DimGrid(phiMagBlocks, 1, 1);
 
-	ComputePhiMag_GPU <<< DimGrid, DimBlock >>> (phiR_d, phiI_d, phiMag_d, numK);
+	ComputePhiMagGPU <<< DimGrid, DimBlock >>> (phiR_d, phiI_d, phiMag_d, numK);
 }
 
 void
@@ -92,11 +92,11 @@ ComputeQCPU(int numK, int numX,
 	dim3 DimBlock(COMPUTEQ_BLOCKDIM, 1, 1);
 	dim3 DimGrid(Griddim, 1, 1);
 
-	for (int Grid = 0; Grid < Grids; Grid++) {
+	for (int Grid = 0; Grid < Gridnum; Grid++) {
 		// Put the tile of K values into constant mem
 		int Base = Grid * COMPUTEQ_K_ELEMS_PER_GRID;
-		kValues* kValsTile = kVals + GridBase;
-		int num = MIN(COMPUTEQ_K_ELEMS_PER_GRID, numK - GridBase);
+		kValues* kValsTile = kVals + Base;
+		int num = MIN(COMPUTEQ_K_ELEMS_PER_GRID, numK - Base);
 
 		cudaMemcpyToSymbol(KT, kValsTile, num * sizeof(kValues), 0);
 
