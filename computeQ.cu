@@ -109,7 +109,5 @@ void createDataStructsCPU(int numK, int numX, float** phiMag,
 {
   *phiMag = (float* ) memalign(16, numK * sizeof(float));
   *Qr = (float*) memalign(16, numX * sizeof (float));
-  memset((void *)*Qr, 0, numX * sizeof(float));
   *Qi = (float*) memalign(16, numX * sizeof (float));
-  memset((void *)*Qi, 0, numX * sizeof(float));
 }
