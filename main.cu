@@ -147,6 +147,14 @@ main (int argc, char *argv[]) {
 
 	ComputeQCPU(numK, numX, x_d, y_d, z_d, kVals, Qr_d, Qi_d);
 	cudaDeviceSynchronize();
+	
+    cudaFree(x_d);
+    cudaFree(y_d);
+    cudaFree(z_d);
+    cudaMemcpy (Qr, Qr_d, numX * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy (Qi, Qi_d, numX * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaFree(Qr_d);
+    cudaFree(Qi_d);
 
   if (params->outFile)
     {
